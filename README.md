@@ -1,2 +1,2 @@
-# NEWAPPxCRM
-IT University evaluation - P16 - march 2025
+This C# application utilizes the REST API developed in the CRM application (https://github.com/AndrewRarijason/CRM.git).
+Its main purpose is to display a dashboard, import CSV files, and offer additional features.

@@ -1,8 +1,12 @@
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using newApp.Service;
-using Microsoft.AspNetCore.Http;
+using new_app_dotnet.Service;
 
-namespace newApp.Controllers
+
+namespace new_app_dotnet.Controllers
 {
     public class LoginController : Controller
     {
@@ -19,28 +23,43 @@ namespace newApp.Controllers
             return View();
         }
 
-        public IActionResult Logout()
-        {
-            HttpContext.Session.Clear(); // Supprime toutes les sessions
-            return RedirectToAction("Index", "Login");
-        }
-
-
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            bool isValid = await _loginService.IsValid(username, password);
-            Console.WriteLine($"Login status: {isValid}");
+            var user = await _loginService.LoginAsync(username, password);
 
-            if (isValid)
+            if (user != null)
             {
-                HttpContext.Session.SetString("isAuthenticated", "true"); // Stocke la session
-                return RedirectToAction("Accueil", "Home");
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                };
+
+                // 🔹 Vérifie que l'utilisateur a des rôles avant d'ajouter un Claim de rôle
+                if (user.Roles != null && user.Roles.Count > 0)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, user.Roles[0].Name));
+                }
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                // 🔹 Authentification avec Claims
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+                return RedirectToAction("Index", "Home");
             }
 
-            ViewBag.Error = "Invalid username or password";
+            ViewBag.Error = "Nom d'utilisateur ou mot de passe incorrect.";
             return View("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Login");
+        }
     }
 }

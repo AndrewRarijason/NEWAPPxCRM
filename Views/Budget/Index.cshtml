@@ -1,0 +1,202 @@
+@model List<new_app_dotnet.Models.BudgetDTO>
+
+<style>
+    /* Animation du fond */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Conteneur principal */
+    .budget-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 25px;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .budget-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Titre */
+    h2 {
+        color: #93c5fd;
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 600;
+        font-size: 2rem;
+        position: relative;
+        padding-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Tableau */
+    .budget-table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .budget-table thead tr {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9));
+        color: white;
+        text-align: left;
+    }
+
+    .budget-table th,
+    .budget-table td {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .budget-table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 0.5px;
+        color: #e2e8f0;
+    }
+
+    .budget-table tbody tr {
+        transition: all 0.2s ease;
+        background-color: rgba(15, 23, 42, 0.5);
+    }
+
+    .budget-table tbody tr:nth-of-type(even) {
+        background-color: rgba(30, 41, 59, 0.7);
+    }
+
+    .budget-table tbody tr:last-of-type {
+        border-bottom: 2px solid #3b82f6;
+    }
+
+    .budget-table tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.15);
+        transform: translateX(5px);
+    }
+
+    /* Style des cellules */
+    .budget-table td {
+        color: #e2e8f0;
+    }
+
+    .budget-table td:first-child {
+        font-weight: 500;
+        color: #93c5fd;
+    }
+
+    /* Effet de surbrillance pour les valeurs */
+    .budget-table td:nth-child(2) {
+        font-weight: 500;
+        color: #86efac;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .budget-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .budget-table thead {
+            display: none;
+        }
+        
+        .budget-table tbody tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .budget-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .budget-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #3b82f6;
+            margin-right: 15px;
+        }
+        
+        .budget-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .budget-container {
+            padding: 15px;
+            margin: 15px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="budget-container">
+    <h2>Liste des Budgets</h2>
+
+    <table class="budget-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Valeur</th>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var budget in Model)
+            {
+                <tr>
+                    <td data-label="ID">@budget.Id</td>
+                    <td data-label="Valeur">@budget.Valeur</td>
+                    <td data-label="Date">@budget.Date.ToString("yyyy-MM-dd")</td>
+                    <td data-label="Client">@budget.Customer.CustomerName</td>
+                    <td data-label="Email">@budget.Customer.CustomerMail</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

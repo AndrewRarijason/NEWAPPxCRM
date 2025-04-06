@@ -1,6 +1,121 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<style>
+    /* Animation du fond - identique aux autres pages */
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Conteneur principal */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+        padding: 40px;
+    }
+
+    .dashboard-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Titre */
+    .page-title {
+        color: #93c5fd;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        font-size: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+    }
+
+    /* Contenu */
+    .privacy-content {
+        background: rgba(30, 41, 59, 0.7);
+        padding: 30px;
+        border-radius: 12px;
+        line-height: 1.8;
+    }
+
+    .privacy-content p {
+        margin-bottom: 1.5rem;
+        color: #e2e8f0;
+    }
+
+    /* Lien */
+    .privacy-link {
+        color: #93c5fd;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .privacy-link:hover {
+        color: #3b82f6;
+        text-decoration: underline;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .dashboard-container {
+            padding: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .privacy-content {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <h1 class="page-title">@ViewData["Title"]</h1>
+    
+    <div class="privacy-content">
+        <p>This C# application utilizes the REST API developed in the CRM application (<a href="https://github.com/AndrewRarijason/CRM.git" class="privacy-link" target="_blank">https://github.com/AndrewRarijason/CRM.git</a>).</p>
+        <p>Its main purpose is to display a dashboard, import CSV files, and offer additional features.</p>
+    </div>
+</div>

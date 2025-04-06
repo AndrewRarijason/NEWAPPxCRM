@@ -1,5 +1,4 @@
-namespace newApp.Models;
-
+namespace new_app_dotnet.Models;
 public class ErrorViewModel
 {
     public string? RequestId { get; set; }

@@ -1,0 +1,162 @@
+@model new_app_dotnet.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Modifier le Taux";
+}
+
+<style>
+    /* Animation du fond */
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Conteneur principal */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    /* Styles spécifiques à la page Seuil */
+    .seuil-content {
+        padding: 40px;
+    }
+
+    .seuil-title {
+        color: #93c5fd;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        font-size: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .seuil-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+    }
+
+    .seuil-form {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #e2e8f0;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .notification {
+        padding: 15px;
+        margin-bottom: 20px;
+        background: rgba(59, 130, 246, 0.2);
+        border-left: 4px solid #3b82f6;
+        border-radius: 4px;
+        color: #dbeafe;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="seuil-content">
+        <h2 class="seuil-title">Modifier le Taux</h2>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="notification">
+                @TempData["Message"]
+            </div>
+        }
+
+        <form asp-action="UpdateSeuil" method="get" class="seuil-form">
+            <div class="form-group">
+                <label for="valeurDepense">Montant :</label>
+                <input type="number" name="nouvelleValeur" class="form-control" required min="0" step="0.01"
+                       placeholder="Entrez le nouveau montant" />
+            </div>
+
+            <button type="submit" class="submit-btn">Enregistrer</button>
+        </form>
+    </div>
+</div>
