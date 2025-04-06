@@ -1,0 +1,261 @@
+@model List<new_app_dotnet.Models.LeadDepenseDTO>
+
+<style>
+    /* Animation du fond */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Conteneur principal */
+    .leads-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 25px;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .leads-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+        color: #93c5fd;
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 600;
+        font-size: 2rem;
+        position: relative;
+        padding-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Tableau */
+    .leads-table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .leads-table thead tr {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9));
+        color: white;
+        text-align: left;
+    }
+
+    .leads-table th,
+    .leads-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .leads-table th {
+        font-weight: 600;
+        font-size: 0.95em;
+        letter-spacing: 0.5px;
+        color: #e2e8f0;
+    }
+
+    .leads-table tbody tr {
+        transition: all 0.2s ease;
+        background-color: rgba(15, 23, 42, 0.5);
+    }
+
+    .leads-table tbody tr:nth-of-type(even) {
+        background-color: rgba(30, 41, 59, 0.7);
+    }
+
+    .leads-table tbody tr:last-of-type {
+        border-bottom: 2px solid #3b82f6;
+    }
+
+    .leads-table tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.15);
+    }
+
+    /* Style des cellules */
+    .leads-table td {
+        color: #e2e8f0;
+        vertical-align: middle;
+    }
+
+    /* Colonne Statut */
+    .status-cell {
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    /* Boutons d'action */
+    .action-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        margin: 2px;
+    }
+
+    .btn-modifier {
+        background: rgba(59, 130, 246, 0.8);
+        color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn-modifier:hover {
+        background: rgba(41, 98, 255, 0.9);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-effacer {
+        background: rgba(239, 68, 68, 0.8);
+        color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn-effacer:hover {
+        background: rgba(220, 38, 38, 0.9);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .leads-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .leads-table thead {
+            display: none;
+        }
+        
+        .leads-table tbody tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .leads-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: right !important;
+        }
+        
+        .leads-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #3b82f6;
+            margin-right: 15px;
+            text-align: left;
+        }
+        
+        .leads-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .leads-container {
+            padding: 15px;
+            margin: 15px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="leads-container">
+    <h2>Liste des Leads</h2>
+
+    <table class="leads-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Client</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Montant</th>
+                <th colspan="2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var lead in Model)
+            {
+                <tr>
+                    <td data-label="ID">@lead.LeadId</td>
+                    <td data-label="Nom">@lead.Name</td>
+                    <td data-label="Téléphone">@lead.Phone</td>
+                    <td data-label="Client">@lead.CustomerName</td>
+                    <td data-label="Statut" class="status-cell">@lead.Status</td>
+                    <td data-label="Date">@lead.DateDepense.ToString("yyyy-MM-dd")</td>
+                    <td data-label="Montant">@lead.ValeurDepense</td>
+                    <td data-label="Modifier">
+                        <a href="@Url.Action("Modifier", "Details", new { id = lead.DepenseId, valeur = lead.ValeurDepense })" 
+                           class="action-btn btn-modifier">
+                            Modifier
+                        </a>
+                    </td>
+                    <td data-label="Effacer">
+                        <a href="@Url.Action("DeleteDepense", "Details", new { id = lead.DepenseId })" 
+                           class="action-btn btn-effacer">
+                            Effacer
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
