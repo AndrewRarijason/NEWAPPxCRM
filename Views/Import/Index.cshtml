@@ -1,0 +1,220 @@
+@{
+    ViewData["Title"] = "Importation CSV";
+}
+
+<style>
+    /* Animation du fond - identique aux autres pages */
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Conteneur principal */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+        padding: 40px;
+    }
+
+    .dashboard-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Titre */
+    .page-title {
+        color: #93c5fd;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        font-size: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+    }
+
+    /* Alertes */
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border-left: 4px solid;
+        backdrop-filter: blur(5px);
+    }
+
+    .alert-success {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: #22c55e;
+        color: #bbf7d0;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: #ef4444;
+        color: #fecaca;
+    }
+
+    /* Formulaire */
+    .import-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #e2e8f0;
+        font-weight: 500;
+    }
+
+    .form-control-file {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .form-control-file:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Bouton */
+    .submit-btn {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Section format */
+    .format-section {
+        margin-top: 40px;
+        padding: 25px;
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 12px;
+    }
+
+    .format-section h4 {
+        color: #93c5fd;
+        margin-bottom: 15px;
+    }
+
+    .format-section ul {
+        padding-left: 20px;
+    }
+
+    .format-section li {
+        margin-bottom: 8px;
+        color: #e2e8f0;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .dashboard-container {
+            padding: 20px;
+        }
+        
+        .import-form {
+            padding: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <h2 class="page-title">@ViewData["Title"]</h2>
+    
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="import-form">
+        <form asp-action="UploadFile" asp-controller="Import" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Sélectionnez un fichier CSV :</label>
+                <input type="file" name="file" class="form-control-file" accept=".csv" required />
+            </div>
+            <button type="submit" class="submit-btn">Importer</button>
+        </form>
+    </div>
+
+    <div class="format-section">
+        <h4>Format attendu :</h4>
+        <p>Le fichier CSV doit contenir des en-têtes pour identifier le type d'enregistrement :</p>
+        <ul>
+            <li>Pour les clients : Customer_id, name, email, phone, etc.</li>
+            <li>Pour les tickets : Ticket_id, subject, status, etc.</li>
+            <li>Pour les leads : Lead_id, name, status, etc.</li>
+        </ul>
+    </div>
+</div>

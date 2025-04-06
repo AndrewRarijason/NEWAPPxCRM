@@ -1,44 +1,36 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using newApp.Models;
-using Microsoft.AspNetCore.Http; // Pour utiliser HttpContext
+using new_app_dotnet.Models;
+using new_app_dotnet.Service;
 
-namespace newApp.Controllers;
-
+[Authorize]
+[Authorize(Roles = "ROLE_MANAGER")]
 public class HomeController : Controller
 {
+    private readonly StatistiqueBudgetService _statistiqueService;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+
+    public HomeController(ILogger<HomeController> logger, StatistiqueBudgetService statistiqueService)
     {
         _logger = logger;
+        _statistiqueService = statistiqueService;
     }
 
-    public IActionResult Index()
+    // Action principale qui affiche le tableau de bord
+    public async Task<IActionResult> IndexAsync()
     {
-        return View();
-    }
+        var (statistiques, depenseStat) = await _statistiqueService.GetStatistiquesAsync();
 
-    public IActionResult Accueil()
-    {
-        if (HttpContext.Session.GetString("isAuthenticated") != "true")
+        var viewModel = new DashboardViewModel
         {
-            return RedirectToAction("Index", "Login"); // Redirige vers la page de login si non authentifié
-        }
+            StatistiqueBudgets = statistiques,
+            DepenseStat = depenseStat
+        };
 
-        return View();
+        return View(viewModel);
     }
-
-    public IActionResult Test()
-    {
-        if (HttpContext.Session.GetString("isAuthenticated") != "true")
-        {
-            return RedirectToAction("Test"); // Redirige vers la page de login si non authentifié
-        }
-
-        return View();
-    }
-
 
     public IActionResult Privacy()
     {
@@ -49,5 +41,14 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}
+
+
+public static class ServiceExtensions
+{
+    public static void AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddHttpClient<StatistiqueBudgetService>(); //  Ajoute HttpClient pour les appels API
     }
 }

@@ -1,8 +1,525 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model new_app_dotnet.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Statistiques Budgétaires";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    /* Animation du fond */
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        color: #f8fafc;
+    }
+
+    @@keyframes gradientBG {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Conteneur principal */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: rgba(30, 41, 59, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .dashboard-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    /* En-tête */
+    .dashboard-header {
+        padding: 28px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(29, 78, 216, 0.9) 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 8s infinite linear;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .dashboard-title {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Alertes */
+    .alert-message {
+        padding: 16px;
+        margin: 20px;
+        background: rgba(219, 234, 254, 0.15);
+        color: #dbeafe;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+
+    .alert-message:hover {
+        background: rgba(219, 234, 254, 0.25);
+        transform: translateX(5px);
+    }
+
+    /* Conteneurs de graphiques */
+    .chart-card {
+        margin: 20px;
+        padding: 24px;
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .chart-card:hover {
+        background: rgba(30, 41, 59, 0.9);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .chart-title {
+        margin-top: 0;
+        margin-bottom: 24px;
+        color: #93c5fd;
+        font-size: 22px;
+        font-weight: 500;
+    }
+
+    /* Graphiques */
+    .chart-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    #budgetChart {
+        height: 450px;
+    }
+
+    .pie-chart-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    #depenseChart {
+        height: 400px;
+    }
+
+    #topBudgetChart {
+        height: 500px;
+    }
+
+    /* Responsive */
+    @@media(max - width: 768px) {
+        .dashboard-container {
+            margin: 10px;
+            border-radius: 12px;
+        }
+
+        .chart-card {
+            margin: 10px;
+            padding: 16px;
+        }
+
+        #budgetChart,
+        #depenseChart,
+        #topBudgetChart {
+            height: 350px;
+        }
+
+        .dashboard-title {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Statistiques Budgétaires</h1>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert-message">
+            @TempData["Message"]
+        </div>
+    }
+
+    <!-- Graphique Budget -->
+    <div class="chart-card">
+        <h2 class="chart-title">Top 10 répartition Budget vs Dépenses</h2>
+        <div class="chart-wrapper">
+            <canvas id="budgetChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Graphique Camembert -->
+    <div class="chart-card">
+        <h2 class="chart-title">Répartition des Dépenses</h2>
+        <div class="chart-wrapper pie-chart-container">
+            <canvas id="depenseChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Graphique TOP 5 -->
+    <div class="chart-card">
+        <h2 class="chart-title">Top 5 Clients</h2>
+        <div class="chart-wrapper">
+            <canvas id="topBudgetChart"></canvas>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Configuration globale avec thème sombre
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+        Chart.defaults.color = '#e2e8f0';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+        // Palette de couleurs pour le thème sombre
+        const colors = {
+            blue: 'rgba(59, 130, 246, 0.8)',
+            red: 'rgba(239, 68, 68, 0.8)',
+            yellow: 'rgba(245, 158, 11, 0.8)',
+            green: 'rgba(16, 185, 129, 0.8)',
+            purple: 'rgba(139, 92, 246, 0.8)',
+            teal: 'rgba(20, 184, 166, 0.8)'
+        };
+
+        // Données du modèle
+        const modelData = {
+            labels: @Html.Raw(Json.Serialize(Model.StatistiqueBudgets.Select(s => s.CustomerName))),
+            customerIds: @Html.Raw(Json.Serialize(Model.StatistiqueBudgets.Select(s => s.CustomerId))),
+            totalDepenseLead: @Html.Raw(Json.Serialize(Model.StatistiqueBudgets.Select(s => s.TotalDepenseLead))),
+            totalDepenseTicket: @Html.Raw(Json.Serialize(Model.StatistiqueBudgets.Select(s => s.TotalDepenseTicket))),
+            totalBudget: @Html.Raw(Json.Serialize(Model.StatistiqueBudgets.Select(s => s.TotalBudget)))
+                    };
+
+        // Préparation données TOP 5
+        const top5Data = modelData.labels
+            .map((label, i) => ({
+                name: label,
+                budget: modelData.totalBudget[i],
+                id: modelData.customerIds[i]
+            }))
+            .sort((a, b) => b.budget - a.budget)
+            .slice(0, 5);
+
+        // Configuration commune des options
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e2e8f0',
+                        font: {
+                            size: 13
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    titleColor: '#93c5fd',
+                    bodyColor: '#e2e8f0',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#94a3b8'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#94a3b8'
+                    }
+                }
+            }
+        };
+
+        // Préparation données TOP 10
+        const top10Data = modelData.labels
+            .map((label, i) => ({
+                name: label,
+                budget: modelData.totalBudget[i],
+                lead: modelData.totalDepenseLead[i],
+                ticket: modelData.totalDepenseTicket[i],
+                id: modelData.customerIds[i]
+            }))
+            .sort((a, b) => b.budget - a.budget)
+            .slice(0, 10);
+
+
+        // 1. Graphique Budget principal (TOP 10 seulement)
+        new Chart(
+            document.getElementById('budgetChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: top10Data.map(item => item.name),
+                    datasets: [
+                        {
+                            label: 'Budget Total',
+                            data: top10Data.map(item => item.budget),
+                            backgroundColor: colors.blue,
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Dépenses Leads',
+                            data: top10Data.map(item => item.lead),
+                            backgroundColor: colors.red,
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Dépenses Tickets',
+                            data: top10Data.map(item => item.ticket),
+                            backgroundColor: colors.yellow,
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: {
+                            ...commonOptions.plugins.legend,
+                            position: 'top',
+                            labels: {
+                                ...commonOptions.plugins.legend.labels,
+                                boxWidth: 12,
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        ...commonOptions.scales,
+                        y: {
+                            ...commonOptions.scales.y,
+                            title: {
+                                display: true,
+                                text: 'Montant en Ariary (MGA)',
+                                color: '#94a3b8',
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                },
+                                padding: { top: 0, left: 0, right: 0, bottom: 10 }
+                            },
+                            ticks: {
+                                ...commonOptions.scales.y.ticks,
+                                callback: function (value) {
+                                    return value + ' MGA';
+                                }
+                            }
+                        }
+                    },
+                    onClick: (e, elements) => {
+                        if (elements.length) {
+                            const { datasetIndex, index } = elements[0];
+                            const urls = [
+                                `/Budget/Index?customerId=${top10Data[index].id}`,
+                                `/Details/LeadsByCustomer?customerId=${top10Data[index].id}`,
+                                `/Details/TicketsByCustomer?customerId=${top10Data[index].id}`
+                            ];
+                            window.location.href = urls[datasetIndex];
+                        }
+                    }
+                }
+            }
+        );
+
+        //2
+        new Chart(
+            document.getElementById('depenseChart').getContext('2d'),
+            {
+                type: 'pie', // Camembert
+                data: {
+                    labels: ["Leads", "Tickets"], // Juste 2 labels
+                    datasets: [{
+                        data: [
+                            parseFloat(@Model.DepenseStat.TotalLeadDepense),  // Conversion en nombre
+                            parseFloat(@Model.DepenseStat.TotalTicketDepense)
+                        ],
+                        backgroundColor: ['#F60000', '#030BF5'], // Deux couleurs seulement
+                        hoverBackgroundColor: ['#BA0000', '#0208B3'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.raw !== null) {
+                                        // Formatte le nombre avec 2 décimales
+                                        label += new Intl.NumberFormat('fr-FR', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }).format(context.raw);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    onClick: (e, elements) => {
+                        if (elements.length) {
+                            const urls = [
+                                "/Details/Leads",
+                                "/Details/Tickets"
+                            ];
+                            window.location.href = urls[elements[0].index];
+                        }
+                    }
+                }
+            }
+        );
+
+        // 3. Graphique TOP 5
+        new Chart(
+            document.getElementById('topBudgetChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: top5Data.map(x => x.name),
+                    datasets: [{
+                        label: 'Budget',
+                        data: top5Data.map(x => x.budget),
+                        backgroundColor: colors.purple,
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        ...commonOptions.scales,
+                        x: {
+                            ...commonOptions.scales.x,
+                            ticks: {
+                                ...commonOptions.scales.x.ticks,
+                                callback: function (value) {
+                                    return value + ' MGA';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Montant en Ariary Malgache (MGA)',
+                                color: '#94a3b8',
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            ...commonOptions.scales.y,
+                            grid: {
+                                display: false // Désactive les grilles pour l'axe Y
+                            }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            ...commonOptions.plugins.tooltip,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.raw + ' MGA';
+                                }
+                            }
+                        }
+                    },
+                    onClick: (e, elements) => {
+                        if (elements.length) {
+                            window.location.href =
+                                `/Budget/Index?customerId=${top5Data[elements[0].index].id}`;
+                        }
+                    }
+                }
+            }
+        );
+    });
+</script>

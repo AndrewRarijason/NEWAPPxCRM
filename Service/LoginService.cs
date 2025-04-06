@@ -1,25 +1,61 @@
-namespace newApp.Service
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using new_app_dotnet.Models;
 
+namespace new_app_dotnet.Service
 {
     public class LoginService
     {
-        public async Task<bool> IsValid(string Username, string Password)
+        private readonly HttpClient _client;
+
+        public LoginService()
         {
-            using var client = new HttpClient();
+            _client = new HttpClient();
+        }
+
+        public async Task<UserDTO?> LoginAsync(string username, string password)
+        {
             var content = new FormUrlEncodedContent(new[]
             {
-                    new KeyValuePair<string, string>("username", Username),
-                    new KeyValuePair<string, string>("password", Password)
-                });
-            
-            //alefa any am api le content ho testeny
-            var response = await client.PostAsync("http://localhost:8080/api/login", content);
-            var result = await response.Content.ReadAsStringAsync();
+                new KeyValuePair<string, string>("username", username),
+                new KeyValuePair<string, string>("password", password)
+            });
 
-            Console.WriteLine(result); // Ne pas supprimer cette ligne
+            try
+            {
+                var response = await _client.PostAsync("http://localhost:8080/api/auth/login", content);
 
-            // Vérifie que le status HTTP est 200 et que le contenu de la réponse indique un succès
-            return response.IsSuccessStatusCode && result.Contains("true");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(json);
+                    var user = JsonSerializer.Deserialize<UserDTO>(json);
+
+                    return user;
+                }
+                else
+                {
+                    var errorJson = await response.Content.ReadAsStringAsync();
+                    var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(errorJson);
+
+                    Console.WriteLine($"Erreur: {errorResponse?.Error ?? "Échec de l'authentification"}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return null;
+            }
         }
+    }
+
+    public class ErrorResponse
+    {
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
     }
 }
